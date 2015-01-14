@@ -3,10 +3,26 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour {
 
-	public static GameManager Instance;
+	static GameManager _instance;
+
+	public static GameManager Instance {
+		get {
+			if (_instance != null) {
+				return _instance;
+			} else {
+				GameObject gameManager = new GameObject("GameManager", typeof(GameManager));
+				_instance = gameManager.AddComponent<GameManager>();
+				return _instance;
+			}
+		}
+	}
 
 	public float pointsPerUnitTravelled = 1.0f;
 	public float gameSpeed = 10.0f;
+	public string titleScreenName = "Title Screen";
+
+	[HideInInspector]
+	public float lastScore = 0;
 
 	private float score = 0.0f;
 	private static float highScore= 0.0f;
@@ -15,8 +31,13 @@ public class GameManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		Instance = this;
+		if (_instance == null) {
+			_instance = this;
+		} else {
+			Destroy (gameObject);
+		}
 		loadHighScore();
+		DontDestroyOnLoad (gameObject);
 	}
 	
 	// Update is called once per frame
@@ -27,10 +48,11 @@ public class GameManager : MonoBehaviour {
 		if (gameOver) {
 			if (!hasSaved) {
 				saveHighScore();
+				lastScore = (int)score;
 				hasSaved = true;
 			}
 			if (Input.anyKeyDown) {
-				Application.LoadLevel (Application.loadedLevel);
+				Application.LoadLevel (titleScreenName);
 			}
 		}
 
@@ -58,7 +80,7 @@ public class GameManager : MonoBehaviour {
 		GUILayout.Label ("Score " + currentScore.ToString());
 		GUILayout.Label ("HighScore " + currentHighScore.ToString());
 		if (gameOver == true) {
-			GUILayout.Label ("Game Over! Press any key to reset!");
+			GUILayout.Label ("Game Over! Press any key to quit!");
 		}
 	}
 }
