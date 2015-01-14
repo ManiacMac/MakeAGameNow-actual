@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		Instance = this;
-		LoadHighScore ();
+		loadHighScore();
 	}
 	
 	// Update is called once per frame
@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour {
 		}
 		if (gameOver) {
 			if (!hasSaved) {
-				SaveHighScore() ;
+				saveHighScore();
 				hasSaved = true;
 			}
 			if (Input.anyKeyDown) {
@@ -38,17 +38,19 @@ public class GameManager : MonoBehaviour {
 			score += pointsPerUnitTravelled * gameSpeed * Time.deltaTime;
 			if (score > highScore) {
 				highScore = score;
+			}
 		}
 	}
+	
+	void saveHighScore() {
+		PlayerPrefs.SetInt ("Highscore", (int)highScore);
+		PlayerPrefs.Save();
 
-	void SaveHighScore() {
-		PlayerPrefs.SetInt ("HighScore", (int)highScore);
-		PlayerPrefs.Save ();
-		}
 	}
 
-	void LoadHighScore () {
-		highScore = PlayerPres.GetInt ("HighScore");
+	void loadHighScore() {
+		highScore = PlayerPrefs.GetInt ("Highscore");
+	}
 
 	void OnGUI() {
 		int currentScore = (int)score;
