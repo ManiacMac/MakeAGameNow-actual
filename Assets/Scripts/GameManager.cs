@@ -31,10 +31,12 @@ public class GameManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		if (_instance == null) {
-			_instance = this;
-		} else {
-			Destroy (gameObject);
+		if (_instance != this) {
+			if (_instance == null) {
+				_instance = this;
+			} else {
+				Destroy (gameObject);
+			}
 		}
 		loadHighScore();
 		DontDestroyOnLoad (gameObject);
@@ -42,26 +44,38 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (GameObject.FindGameObjectWithTag ("Player") == null) {
-			gameOver = true;
-		}
-		if (gameOver) {
-			if (!hasSaved) {
-				saveHighScore();
-				lastScore = (int)score;
-				hasSaved = true;
+		if (Application.loadedLevelName != titleScreenName) {
+			if (GameObject.FindGameObjectWithTag ("Player") == null) {
+				gameOver = true;
 			}
-			if (Input.anyKeyDown) {
-				Application.LoadLevel (titleScreenName);
+			if (gameOver) {
+				if (!hasSaved) {
+					saveHighScore();
+					lastScore = (int)score;
+					hasSaved = true;
+				}
+				if (Input.anyKeyDown) {
+					Application.LoadLevel (titleScreenName);
+				}
 			}
-		}
 
-		if (!gameOver) { 
-			score += pointsPerUnitTravelled * gameSpeed * Time.deltaTime;
-			if (score > highScore) {
-				highScore = score;
+			if (!gameOver) { 
+				score += pointsPerUnitTravelled * gameSpeed * Time.deltaTime;
+				if (score > highScore) {
+					highScore = score;
+				}
 			}
+		} else {
+			//Reset stuff for next game
+			resetGame();
 		}
+	}
+
+	void resetGame() {
+		score = 0.0f;
+		gameOver = false;
+		hasSaved = false;
+
 	}
 	
 	void saveHighScore() {
@@ -75,12 +89,14 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void OnGUI() {
-		int currentScore = (int)score;
-		int currentHighScore = (int)highScore;
-		GUILayout.Label ("Score " + currentScore.ToString());
-		GUILayout.Label ("HighScore " + currentHighScore.ToString());
-		if (gameOver == true) {
-			GUILayout.Label ("Game Over! Press any key to quit!");
+		if (Application.loadedLevelName != titleScreenName) {
+			int currentScore = (int)score;
+			int currentHighScore = (int)highScore;
+			GUILayout.Label ("Score " + currentScore.ToString());
+			GUILayout.Label ("HighScore " + currentHighScore.ToString());
+			if (gameOver == true) {
+				GUILayout.Label ("Game Over! Press any key to quit!");
+			}
 		}
 	}
 }
